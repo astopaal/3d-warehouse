@@ -125,11 +125,13 @@ function Shelf({
   onSelect,
   isSelected,
   onHoverBin,
+  showLabels,
 }: {
   shelf: DerivedShelf;
   onSelect: (id: string) => void;
   isSelected: boolean;
   onHoverBin: (bin: SapStorageBin | null) => void;
+  showLabels: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered || isSelected);
@@ -243,12 +245,14 @@ function Shelf({
         });
       })}
 
-      <Float floatIntensity={0.5} speed={2.2}>
-        <Html center distanceFactor={14} className={`shelf-label${isSelected ? ' active' : ''}`}>
-          <div>{shelf.label}</div>
-          <div>{formatPercentage(shelf.occupancy)}</div>
-        </Html>
-      </Float>
+      {showLabels && (
+        <Float floatIntensity={0.5} speed={2.2}>
+          <Html center distanceFactor={14} className={`shelf-label${isSelected ? ' active' : ''}`}>
+            <div>{shelf.label}</div>
+            <div>{formatPercentage(shelf.occupancy)}</div>
+          </Html>
+        </Float>
+      )}
     </group>
   );
 }
@@ -313,6 +317,7 @@ function WarehouseScene({
   onSelectShelf,
   onSelectAisle,
   onHoverBin,
+  showLabels,
 }: {
   shelves: DerivedShelf[];
   aisles: Aisle[];
@@ -322,6 +327,7 @@ function WarehouseScene({
   onSelectShelf: (id: string) => void;
   onSelectAisle: (id: string) => void;
   onHoverBin: (bin: SapStorageBin | null) => void;
+  showLabels: boolean;
 }) {
   return (
     <>
@@ -369,16 +375,18 @@ function WarehouseScene({
             <planeGeometry args={[zone.size[0], zone.size[1]]} />
             <meshStandardMaterial color={zoneColors[zone.type]} transparent opacity={0.22} />
           </mesh>
-          <Float floatIntensity={0.45} speed={1.6}>
-            <Html position={[0, 0.05, 0]} center distanceFactor={24} className="zone-label">
-              <span>{zone.label}</span>
-            </Html>
-          </Float>
+          {showLabels && (
+            <Float floatIntensity={0.45} speed={1.6}>
+              <Html position={[0, 0.05, 0]} center distanceFactor={24} className="zone-label">
+                <span>{zone.label}</span>
+              </Html>
+            </Float>
+          )}
         </group>
       ))}
 
       {shelves.map((shelf) => (
-        <Shelf key={shelf.id} shelf={shelf} onSelect={onSelectShelf} isSelected={shelf.id === selectedShelfId} onHoverBin={onHoverBin} />
+        <Shelf key={shelf.id} shelf={shelf} onSelect={onSelectShelf} isSelected={shelf.id === selectedShelfId} onHoverBin={onHoverBin} showLabels={showLabels} />
       ))}
     </>
   );
@@ -648,6 +656,7 @@ function App() {
               onSelectShelf={handleSelectShelf}
               onSelectAisle={handleSelectAisle}
               onHoverBin={handleHoverBin}
+              showLabels={!showWelcome}
             />
           </Suspense>
           <OrbitControls
@@ -670,6 +679,7 @@ function App() {
               <h1 className="welcome-title">Hold and slide to move the camera</h1>
               <p className="welcome-subtitle">Click shelfs to inspect</p>
             </div>
+            <p className="welcome-hint">Press F11 for fullscreen • Best experience</p>
           </div>
         )}
         <div className="scene-overlay">
