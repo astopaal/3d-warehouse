@@ -48,6 +48,7 @@ body {
     welcomeGradientMove 8s linear infinite,
     welcomeFadeIn 1.5s ease-out;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
@@ -130,6 +131,35 @@ body {
   }
   50% {
     opacity: 1;
+  }
+}
+
+.welcome-hint {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(158, 183, 255, 0.9);
+  margin-top: auto;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  background: rgba(36, 107, 253, 0.15);
+  border: 1px solid rgba(36, 107, 253, 0.35);
+  border-radius: 6px;
+  display: inline-block;
+  animation: hintBlink 3s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(36, 107, 253, 0.3);
+}
+
+@keyframes hintBlink {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(36, 107, 253, 0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+    box-shadow: 0 0 30px rgba(36, 107, 253, 0.5);
   }
 }
 
