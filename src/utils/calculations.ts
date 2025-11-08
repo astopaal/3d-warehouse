@@ -7,7 +7,7 @@ export function getBinColor(bin: SapStorageBin) {
   return blendColors('#0d1628', statusColors[bin.status], fillRatio);
 }
 
-export function calculateStatusBreakdown(bins: SapStorageBin[], statusOrder: SapBinStatus[]) {
+export function calculateStatusBreakdown(_bins: SapStorageBin[], statusOrder: SapBinStatus[]) {
   return statusOrder.reduce(
     (acc, status) => {
       acc[status] = 0;
