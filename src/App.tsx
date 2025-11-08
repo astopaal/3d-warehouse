@@ -92,9 +92,9 @@ function AppContent() {
         </div>
       )}
 
-      <Dashboard warehouse={warehouse} autoRotate={autoRotate} onToggleAutoRotate={() => setAutoRotate(!autoRotate)} />
-
       <ShelfDetails key={selectedShelf?.id ?? 'empty'} shelf={selectedShelf} hoveredBin={hoveredBin} />
+
+      <Dashboard warehouse={warehouse} autoRotate={autoRotate} onToggleAutoRotate={() => setAutoRotate(!autoRotate)} />
 
       <button className="readme-button" onClick={() => window.open('/features.html', '_blank')} title="View Feature Roadmap">
         📋 README
