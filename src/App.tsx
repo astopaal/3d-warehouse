@@ -92,13 +92,34 @@ function AppContent() {
         </div>
       )}
 
-      <ShelfDetails key={selectedShelf?.id ?? 'empty'} shelf={selectedShelf} hoveredBin={hoveredBin} />
+      <div className="left-controls">
+        <button className="readme-button" onClick={() => window.open('/features.html', '_blank')} title="View Feature Roadmap">
+          📋 README
+        </button>
 
-      <Dashboard warehouse={warehouse} autoRotate={autoRotate} onToggleAutoRotate={() => setAutoRotate(!autoRotate)} />
-
-      <button className="readme-button" onClick={() => window.open('/features.html', '_blank')} title="View Feature Roadmap">
-        📋 README
-      </button>
+        <div className="legend">
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: '#3c9dff' }} />
+            <span className="legend-label">{t.legend.available}</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: '#f7ba3e' }} />
+            <span className="legend-label">{t.legend.reserved}</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: '#b37feb' }} />
+            <span className="legend-label">{t.legend.quality}</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: '#ff5c7a' }} />
+            <span className="legend-label">{t.legend.blocked}</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: '#49546d' }} />
+            <span className="legend-label">{t.legend.empty}</span>
+          </div>
+        </div>
+      </div>
 
       <Canvas
         shadows
@@ -140,6 +161,11 @@ function AppContent() {
           <StatsGl className="stats" />
         </Suspense>
       </Canvas>
+
+      <div className="right-sidebar">
+        <Dashboard warehouse={warehouse} autoRotate={autoRotate} onToggleAutoRotate={() => setAutoRotate(!autoRotate)} />
+        <ShelfDetails key={selectedShelf?.id ?? 'empty'} shelf={selectedShelf} hoveredBin={hoveredBin} />
+      </div>
     </div>
   );
 }

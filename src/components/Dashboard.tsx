@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import type { SapWarehouse } from '../types';
-import { statusColors } from '../utils/colors';
 import { formatPercentage, formatShift } from '../utils/formatters';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -77,15 +76,6 @@ export function Dashboard({ warehouse, autoRotate, onToggleAutoRotate }: Dashboa
           <div className="kpi-value">{stats.avgTemp.toFixed(1)}°C</div>
           <div className="kpi-subtext">{formatPercentage((stats.avgTemp - 15) / 10)} {t.dashboard.filled}</div>
         </div>
-      </div>
-
-      <div className="legend">
-        {Object.entries(statusColors).map(([status, color]) => (
-          <div key={status} className="legend-item">
-            <div className="legend-color" style={{ background: color }} />
-            <span className="legend-label">{t.legend[status.toLowerCase() as keyof typeof t.legend]}</span>
-          </div>
-        ))}
       </div>
 
       <div className="status-indicators">

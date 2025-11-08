@@ -191,6 +191,17 @@ body {
   pointer-events: auto;
 }
 
+.left-controls {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: auto;
+}
+
 .readme-button {
   display: flex;
   align-items: center;
@@ -207,7 +218,6 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  pointer-events: auto;
   white-space: nowrap;
 }
 
@@ -222,13 +232,38 @@ body {
   transform: translateY(0);
 }
 
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(13, 22, 40, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
+  gap: 10px;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.legend-label {
+  font-size: 11px;
+  font-weight: 600;
   color: #b8c9e8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .legend-dot {
@@ -338,16 +373,24 @@ body {
   box-shadow: 0 4px 20px rgba(36, 107, 253, 0.3);
 }
 
-.dashboard {
+.right-sidebar {
   width: 480px;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(180deg, #0a1223 0%, #050912 100%);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard {
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .dashboard::-webkit-scrollbar {
@@ -1015,9 +1058,7 @@ body {
 
 /* Shelf Details Panel */
 .shelf-details {
-  width: 420px;
-  background: linear-gradient(180deg, #0a1223 0%, #050912 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
