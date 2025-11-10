@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, StatsGl } from '@react-three/drei';
 import './App.css';
@@ -7,8 +7,11 @@ import { ApiProvider } from './contexts/ApiContext';
 import { useWarehouse } from './hooks/useWarehouse';
 import { Dashboard } from './components/Dashboard';
 import { ShelfDetails } from './components/ShelfDetails';
+import { BinDetailsPanel } from './components/BinDetailsPanel';
 import { WarehouseScene } from './components/WarehouseScene';
 import type { SapStorageBin, DerivedShelf } from './types';
+import type { OrbitControls as OrbitControlsType } from 'three-stdlib';
+import { Vector3, PerspectiveCamera as ThreePerspectiveCamera } from 'three';
 
 function AppContent() {
   const { t } = useLanguage();
@@ -16,9 +19,14 @@ function AppContent() {
   const [selectedShelfId, setSelectedShelfId] = useState<string | null>(null);
   const [selectedAisleId, setSelectedAisleId] = useState<string | null>(null);
   const [hoveredBin, setHoveredBin] = useState<SapStorageBin | null>(null);
+  const [clickedBin, setClickedBin] = useState<SapStorageBin | null>(null);
   const [autoRotate, setAutoRotate] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const controlsRef = useRef<OrbitControlsType>(null);
+  const cameraRef = useRef<ThreePerspectiveCamera>(null);
+  const defaultCameraPos = useRef(new Vector3(0, 18, 22));
+  const defaultTargetPos = useRef(new Vector3(0, 3.8, 0));
 
   const shelves: DerivedShelf[] = useMemo(() => {
     if (!warehouse) return [];
@@ -54,7 +62,15 @@ function AppContent() {
   const handleSelectAisle = useCallback((aisleId: string) => {
     setSelectedAisleId(aisleId);
     setSelectedShelfId(null);
+    setClickedBin(null);
   }, []);
+
+  const handleBinClick = useCallback((bin: SapStorageBin | null) => {
+    // Sadece raf seçili ise bin'e tıklama aktif
+    if (selectedShelfId) {
+      setClickedBin(bin);
+    }
+  }, [selectedShelfId]);
 
   const handleInteraction = useCallback(() => {
     if (hasInteracted) {
@@ -70,6 +86,86 @@ function AppContent() {
   const handleControlStart = useCallback(() => {
     setHasInteracted(true);
   }, []);
+
+  // Cinematic kamera odaklama - Raf seçildiğinde
+  useEffect(() => {
+    if (!controlsRef.current || !cameraRef.current) return;
+
+    const controls = controlsRef.current;
+    const camera = cameraRef.current;
+    const duration = 1500; // 1.5 saniye - daha yavaş ve sinematik
+    const startTime = Date.now();
+    
+    if (selectedShelf) {
+      // Raf seçildiğinde - yakından ve ideal açıdan göster
+      const { position, bayCount, levelCount } = selectedShelf;
+      const shelfWidth = bayCount * 1.2 + (bayCount - 1) * 0.1;
+      const shelfHeight = levelCount * 0.8 + (levelCount - 1) * 0.15 + 0.2;
+      
+      // Rafın merkezi (y=0'dan başlayarak hesapla)
+      const targetPos = new Vector3(
+        position.x, 
+        shelfHeight / 2 + 1, 
+        position.z
+      );
+      
+      // Kamera pozisyonu - rafın önünde, hafif yukarıdan, ideal açı
+      const cameraDistance = Math.max(shelfWidth * 1.5, 10); // Minimum 10 birim uzaklık
+      const cameraPos = new Vector3(
+        position.x + cameraDistance * 0.4,  // Hafif sağdan
+        shelfHeight / 2 + 4,                // Yukarıdan
+        position.z + cameraDistance * 0.9   // Önden - daha yakın
+      );
+      
+      const startCameraPos = camera.position.clone();
+      const startTargetPos = controls.target.clone();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Cinematic easing (ease-in-out cubic)
+        const easeProgress = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        
+        // Kamera pozisyonunu ve hedefini birlikte animasyon yap
+        camera.position.lerpVectors(startCameraPos, cameraPos, easeProgress);
+        controls.target.lerpVectors(startTargetPos, targetPos, easeProgress);
+        controls.update();
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+      
+    } else {
+      // Raf seçimi kaldırıldığında - varsayılan konuma dön
+      const startCameraPos = camera.position.clone();
+      const startTargetPos = controls.target.clone();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easeProgress = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        
+        camera.position.lerpVectors(startCameraPos, defaultCameraPos.current, easeProgress);
+        controls.target.lerpVectors(startTargetPos, defaultTargetPos.current, easeProgress);
+        controls.update();
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    }
+  }, [selectedShelf]);
 
   if (loading || !warehouse) {
     return (
@@ -128,8 +224,9 @@ function AppContent() {
         style={{ background: 'linear-gradient(to bottom, #0a0e1a 0%, #0d1628 100%)' }}
       >
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[0, 18, 22]} fov={50} />
+          <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 18, 22]} fov={50} />
           <OrbitControls
+            ref={controlsRef}
             target={selectedAisle ? [selectedAisle.position.x, 3.8, selectedAisle.position.z] : [0, 3.8, 0]}
             enableDamping
             dampingFactor={0.05}
@@ -142,10 +239,51 @@ function AppContent() {
             onChange={handleInteraction}
           />
 
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow shadow-mapSize={[2048, 2048]} />
-          <directionalLight position={[-10, 15, -10]} intensity={0.4} />
-          <pointLight position={[0, 10, 0]} intensity={0.3} distance={30} />
+          {/* Daha parlak ambient ışık - genel aydınlatma */}
+          <ambientLight intensity={0.6} color="#f5f8ff" />
+          
+          {/* Ana güneş ışığı - daha güçlü */}
+          <directionalLight 
+            position={[10, 25, 15]} 
+            intensity={1.2} 
+            castShadow 
+            shadow-mapSize={[2048, 2048]}
+            color="#ffffff"
+          />
+          
+          {/* Dolgu ışığı - karanlık köşeleri aydınlat */}
+          <directionalLight 
+            position={[-10, 18, -10]} 
+            intensity={0.7} 
+            color="#e8f0ff"
+          />
+          
+          {/* Üstten genel ışık */}
+          <pointLight 
+            position={[0, 15, 0]} 
+            intensity={0.8} 
+            distance={40} 
+            decay={1.5}
+            color="#ffffff"
+          />
+          
+          {/* Yan aydınlatma - sağ */}
+          <pointLight 
+            position={[20, 10, 0]} 
+            intensity={0.5} 
+            distance={35} 
+            decay={2}
+            color="#f0f4ff"
+          />
+          
+          {/* Yan aydınlatma - sol */}
+          <pointLight 
+            position={[-20, 10, 0]} 
+            intensity={0.5} 
+            distance={35} 
+            decay={2}
+            color="#f0f4ff"
+          />
 
           <WarehouseScene
             warehouse={warehouse}
@@ -156,15 +294,28 @@ function AppContent() {
             onSelectShelf={handleSelectShelf}
             onSelectAisle={handleSelectAisle}
             onBinHover={setHoveredBin}
+            onBinClick={handleBinClick}
+            clickedBin={clickedBin}
           />
 
           <StatsGl className="stats" />
         </Suspense>
       </Canvas>
 
+      {/* Floating Bin Details Panel */}
+      <BinDetailsPanel 
+        bin={clickedBin} 
+        onClose={() => setClickedBin(null)} 
+      />
+
       <div className="right-sidebar">
         <Dashboard warehouse={warehouse} autoRotate={autoRotate} onToggleAutoRotate={() => setAutoRotate(!autoRotate)} />
-        <ShelfDetails key={selectedShelf?.id ?? 'empty'} shelf={selectedShelf} hoveredBin={hoveredBin} />
+        <ShelfDetails 
+          key={selectedShelf?.id ?? 'empty'} 
+          shelf={selectedShelf} 
+          hoveredBin={hoveredBin}
+          clickedBin={clickedBin}
+        />
       </div>
     </div>
   );

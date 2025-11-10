@@ -7,10 +7,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 interface ShelfDetailsProps {
   shelf: DerivedShelf | null;
   hoveredBin: SapStorageBin | null;
+  clickedBin?: SapStorageBin | null;
 }
 
-export function ShelfDetails({ shelf, hoveredBin }: ShelfDetailsProps) {
+export function ShelfDetails({ shelf, hoveredBin, clickedBin }: ShelfDetailsProps) {
   const { t } = useLanguage();
+  
+  // Tıklanmış bin varsa onu göster, yoksa hover edilen bin'i göster
+  const displayBin = clickedBin || hoveredBin;
 
   if (!shelf) {
     return (
@@ -86,33 +90,34 @@ export function ShelfDetails({ shelf, hoveredBin }: ShelfDetailsProps) {
         </div>
       </div>
 
-      {hoveredBin && (
-        <div className="detail-section bin-hover">
-          <div className="section-title" style={{ color: statusColors[hoveredBin.status] }}>
-            {hoveredBin.id}
+      {displayBin && (
+        <div className={`detail-section ${clickedBin ? 'bin-clicked' : 'bin-hover'}`}>
+          <div className="section-title" style={{ color: statusColors[displayBin.status] }}>
+            {displayBin.id}
+            {clickedBin && <span style={{ marginLeft: '8px', fontSize: '11px', opacity: 0.7 }}>📌 {t.shelf.pinned || 'Pinned'}</span>}
           </div>
           <div className="bin-info">
-            <div className="bin-material">{hoveredBin.materialDescription}</div>
+            <div className="bin-material">{displayBin.materialDescription}</div>
             <div className="bin-row">
               <span className="bin-label">{t.shelf.quantity}:</span>
-              <span className="bin-value">{formatRatio(hoveredBin.quantity, hoveredBin.capacity, hoveredBin.uom)}</span>
+              <span className="bin-value">{formatRatio(displayBin.quantity, displayBin.capacity, displayBin.uom)}</span>
             </div>
             <div className="bin-row">
               <span className="bin-label">{t.shelf.batch}:</span>
-              <span className="bin-value">{hoveredBin.batch}</span>
+              <span className="bin-value">{displayBin.batch}</span>
             </div>
             <div className="bin-row">
               <span className="bin-label">{t.shelf.handlingUnit}:</span>
-              <span className="bin-value">{hoveredBin.handlingUnit}</span>
+              <span className="bin-value">{displayBin.handlingUnit}</span>
             </div>
             <div className="bin-row">
               <span className="bin-label">{t.shelf.lastMovement}:</span>
-              <span className="bin-value">{formatTimestamp(hoveredBin.lastMovement)}</span>
+              <span className="bin-value">{formatTimestamp(displayBin.lastMovement)}</span>
             </div>
-            {hoveredBin.nextMovement && (
+            {displayBin.nextMovement && (
               <div className="bin-row">
                 <span className="bin-label">{t.shelf.nextMovement}:</span>
-                <span className="bin-value">{formatTimestamp(hoveredBin.nextMovement)}</span>
+                <span className="bin-value">{formatTimestamp(displayBin.nextMovement)}</span>
               </div>
             )}
           </div>

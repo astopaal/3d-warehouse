@@ -13,6 +13,8 @@ interface WarehouseSceneProps {
   onSelectShelf: (shelfId: string) => void;
   onSelectAisle: (aisleId: string) => void;
   onBinHover: (bin: any) => void;
+  onBinClick: (bin: any) => void;
+  clickedBin: any;
 }
 
 export function WarehouseScene({
@@ -24,6 +26,8 @@ export function WarehouseScene({
   onSelectShelf,
   onSelectAisle,
   onBinHover,
+  onBinClick,
+  clickedBin,
 }: WarehouseSceneProps) {
   return (
     <>
@@ -51,6 +55,8 @@ export function WarehouseScene({
           showLabels={showLabels}
           onSelect={() => onSelectShelf(shelf.id)}
           onBinHover={onBinHover}
+          onBinClick={onBinClick}
+          clickedBin={clickedBin}
         />
       ))}
 
