@@ -94,7 +94,7 @@ export function ShelfDetails({ shelf, hoveredBin, clickedBin }: ShelfDetailsProp
         <div className={`detail-section ${clickedBin ? 'bin-clicked' : 'bin-hover'}`}>
           <div className="section-title" style={{ color: statusColors[displayBin.status] }}>
             {displayBin.id}
-            {clickedBin && <span style={{ marginLeft: '8px', fontSize: '11px', opacity: 0.7 }}>📌 {t.shelf.pinned || 'Pinned'}</span>}
+            {clickedBin && <span style={{ marginLeft: '8px', fontSize: '11px', opacity: 0.7 }}>📌 {t.shelf.pinned}</span>}
           </div>
           <div className="bin-info">
             <div className="bin-material">{displayBin.materialDescription}</div>

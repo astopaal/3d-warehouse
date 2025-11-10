@@ -43,6 +43,7 @@ export interface Translations {
     handlingUnit: string;
     lastMovement: string;
     nextMovement: string;
+    pinned: string;
   };
   zones: {
     inboundStaging: string;
@@ -102,6 +103,7 @@ export const translations: Record<Language, Translations> = {
       handlingUnit: 'Handling Unit',
       lastMovement: 'Last Movement',
       nextMovement: 'Next Movement',
+      pinned: 'Pinned',
     },
     zones: {
       inboundStaging: 'Inbound Staging',
@@ -159,6 +161,7 @@ export const translations: Record<Language, Translations> = {
       handlingUnit: 'Taşıma Birimi',
       lastMovement: 'Son Hareket',
       nextMovement: 'Sonraki Hareket',
+      pinned: 'Sabitlendi',
     },
     zones: {
       inboundStaging: 'Giriş Alanı',
