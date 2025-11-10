@@ -17,6 +17,56 @@ import {
 import { getBinColor } from '../utils/calculations';
 import * as THREE from 'three';
 
+function createTextTexture(text: string, fontSize: number = 32, color: string = '#ffffff', bgColor: string = 'transparent'): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d')!;
+  canvas.width = 512;
+  canvas.height = 512;
+  
+  if (bgColor !== 'transparent') {
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  
+  context.font = `bold ${fontSize}px Arial`;
+  context.fillStyle = color;
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createQuantityTexture(quantity: number, uom: string, fontSize: number = 24): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d')!;
+  canvas.width = 256;
+  canvas.height = 128;
+  
+  // Arka plan
+  context.fillStyle = 'rgba(60, 157, 255, 0.85)';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Border
+  context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+  context.lineWidth = 2;
+  context.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+  
+  // Text
+  context.font = `bold ${fontSize}px Arial`;
+  context.fillStyle = '#ffffff';
+  context.textAlign = 'right';
+  context.textBaseline = 'bottom';
+  const text = `${quantity} ${uom}`;
+  context.fillText(text, canvas.width - 8, canvas.height - 8);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
 interface ShelfProps {
   shelf: DerivedShelf;
   selected: boolean;
@@ -30,6 +80,7 @@ interface ShelfProps {
 export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBinClick, clickedBin }: ShelfProps) {
   const { bayCount, levelCount, position } = shelf;
   const binOutlineRefs = useRef<Map<string, THREE.Mesh>>(new Map());
+  const textureCache = useRef<Map<string, THREE.CanvasTexture>>(new Map());
 
   // Raf boyutları - padding dahil
   const contentWidth = useMemo(() => bayCount * SLOT_WIDTH + (bayCount - 1) * SLOT_GAP, [bayCount]);
@@ -67,7 +118,13 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
   return (
     <group position={[position.x, 0, position.z]} onClick={onSelect}>
       {showLabels && (
-        <Html position={[0, shelfHeight + 0.6, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
+        <Html 
+          position={[0, shelfHeight + 0.6, 0]} 
+          center 
+          distanceFactor={8} 
+          style={{ pointerEvents: 'none', zIndex: 10 }}
+          className="shelf-label-wrapper"
+        >
           <div
             style={{
               background: selected ? 'rgba(60, 157, 255, 0.92)' : 'rgba(13, 22, 40, 0.88)',
@@ -208,6 +265,25 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
 
       {bins.map((bin) => {
         const isClicked = clickedBin?.id === bin.id;
+        
+        let nameTexture: THREE.CanvasTexture | null = null;
+        if (selected && bin.materialDescription) {
+          const cacheKey = `name-${bin.materialDescription}`;
+          if (!textureCache.current.has(cacheKey)) {
+            textureCache.current.set(cacheKey, createTextTexture(bin.materialDescription, 28, '#ffffff', 'rgba(0, 0, 0, 0.7)'));
+          }
+          nameTexture = textureCache.current.get(cacheKey)!;
+        }
+        
+        let quantityTexture: THREE.CanvasTexture | null = null;
+        if (selected && bin.quantity > 0) {
+          const cacheKey = `qty-${bin.quantity}-${bin.uom}`;
+          if (!textureCache.current.has(cacheKey)) {
+            textureCache.current.set(cacheKey, createQuantityTexture(bin.quantity, bin.uom, 20));
+          }
+          quantityTexture = textureCache.current.get(cacheKey)!;
+        }
+        
         return (
           <group key={bin.id} position={[bin.x, bin.y, 0]}>
             {/* Ana bin mesh */}
@@ -239,6 +315,22 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
                 emissiveIntensity={0.05}
               />
             </mesh>
+            
+            {/* Bin üzerine isim - yüzeyde */}
+            {selected && nameTexture && (
+              <mesh position={[0, SLOT_HEIGHT / 2 - 0.06, (SHELF_DEPTH - 0.4) / 2 + 0.001]}>
+                <planeGeometry args={[SLOT_WIDTH - 0.2, 0.08]} />
+                <meshBasicMaterial map={nameTexture} transparent />
+              </mesh>
+            )}
+            
+            {/* Sağ alt köşeye miktar - yüzeyde */}
+            {selected && quantityTexture && (
+              <mesh position={[SLOT_WIDTH / 2 - 0.12, -SLOT_HEIGHT / 2 + 0.06, (SHELF_DEPTH - 0.4) / 2 + 0.001]}>
+                <planeGeometry args={[0.12, 0.06]} />
+                <meshBasicMaterial map={quantityTexture} transparent />
+              </mesh>
+            )}
             
             {/* Seçili bin için parlayan outline */}
             {isClicked && (
