@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+/* Html component'lerinin z-index'ini düşür - panelin üstüne çıkmasınlar */
+.shelf-label-wrapper,
+div[data-three-html],
+canvas + div > div[style*="position: absolute"],
+canvas ~ div > div[style*="position: absolute"] {
+  z-index: 10 !important;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -1552,7 +1560,7 @@ body {
   right: 500px;
   top: 50%;
   transform: translateY(-50%);
-  width: 340px;
+  width: 680px;
   max-height: 85vh;
   background: linear-gradient(135deg, rgba(15, 24, 42, 0.98) 0%, rgba(10, 18, 35, 0.98) 100%);
   backdrop-filter: blur(20px);
@@ -1563,9 +1571,44 @@ body {
     0 0 0 1px rgba(60, 157, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   padding: 0;
-  z-index: 100;
+  z-index: 9999;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   animation: slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bin-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.bin-panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bin-panel-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.bin-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.bin-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.bin-panel-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
 @keyframes slideInFromRight {
@@ -1644,8 +1687,10 @@ body {
 }
 
 .bin-panel-section {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  background: rgba(10, 18, 35, 0.5);
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .bin-panel-material {
@@ -1786,6 +1831,179 @@ body {
   font-size: 11px;
   color: #5b7aa8;
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* Product Label Section */
+.bin-panel-label-section {
+  padding: 16px;
+  background: rgba(10, 18, 35, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.bin-panel-label-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bin-panel-label-icon {
+  font-size: 18px;
+}
+
+.bin-panel-label-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8f0ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bin-product-label {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Arial', sans-serif;
+  color: #000000;
+}
+
+.bin-label-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #000000;
+  margin-bottom: 12px;
+}
+
+.bin-label-company {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+.bin-label-number {
+  font-size: 11px;
+  font-weight: 600;
+  color: #333333;
+  font-family: 'Courier New', monospace;
+}
+
+.bin-label-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.bin-label-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bin-label-material-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.3;
+}
+
+.bin-label-material-code {
+  font-size: 11px;
+  color: #333333;
+  font-family: 'Courier New', monospace;
+}
+
+.bin-label-batch {
+  font-size: 11px;
+  color: #333333;
+  font-family: 'Courier New', monospace;
+}
+
+.bin-label-barcode-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.bin-label-barcode {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  image-rendering: pixelated;
+  margin-bottom: 6px;
+}
+
+.bin-label-barcode-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: #000000;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.bin-label-certification {
+  padding: 10px;
+  background: #f0f8ff;
+  border-radius: 4px;
+  border: 1px solid #c0d8f0;
+  margin-bottom: 12px;
+}
+
+.bin-label-cert-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0066cc;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.bin-label-cert-number {
+  font-size: 10px;
+  color: #333333;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 4px;
+}
+
+.bin-label-cert-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #666666;
+  font-family: 'Courier New', monospace;
+  gap: 12px;
+}
+
+.bin-label-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11px;
+}
+
+.bin-label-quantity {
+  font-weight: 600;
+  color: #000000;
+}
+
+.bin-label-status {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
 }
 
 /* Canvas */
