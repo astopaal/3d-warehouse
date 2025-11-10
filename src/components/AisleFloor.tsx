@@ -33,7 +33,13 @@ export function AisleFloor({ aisle, selected, onSelect }: AisleFloorProps) {
         />
       </mesh>
       {(selected || hovered) && (
-        <Html position={[0, 0.1, 0]} center distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html 
+          position={[0, 0.1, 0]} 
+          center 
+          distanceFactor={10} 
+          style={{ pointerEvents: 'none', zIndex: 10 }}
+          className="aisle-label-wrapper"
+        >
           <div
             style={{
               background: 'rgba(36, 107, 253, 0.92)',

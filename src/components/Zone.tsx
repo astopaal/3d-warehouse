@@ -26,7 +26,13 @@ export function Zone({ zone, showLabels }: ZoneProps) {
         <meshStandardMaterial color={zoneColors[zone.type]} transparent opacity={0.18} />
       </mesh>
       {showLabels && (
-        <Html position={[0, 0.1, 0]} center distanceFactor={12} style={{ pointerEvents: 'none' }}>
+        <Html 
+          position={[0, 0.1, 0]} 
+          center 
+          distanceFactor={12} 
+          style={{ pointerEvents: 'none', zIndex: 10 }}
+          className="zone-label-wrapper"
+        >
           <div
             style={{
               background: 'rgba(13, 22, 40, 0.85)',

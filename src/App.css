@@ -6,6 +6,8 @@
 
 /* Html component'lerinin z-index'ini düşür - panelin üstüne çıkmasınlar */
 .shelf-label-wrapper,
+.zone-label-wrapper,
+.aisle-label-wrapper,
 div[data-three-html],
 canvas + div > div[style*="position: absolute"],
 canvas ~ div > div[style*="position: absolute"] {
