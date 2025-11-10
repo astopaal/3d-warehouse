@@ -305,6 +305,14 @@ body {
   top: auto !important;
 }
 
+.stats {
+  position: fixed !important;
+  left: 24px !important;
+  bottom: 24px !important;
+  top: auto !important;
+  right: auto !important;
+}
+
 .shelf-label {
   display: flex;
   flex-direction: column;
