@@ -14,58 +14,8 @@ import {
   VERTICAL_PADDING,
   BACK_PANEL_THICKNESS
 } from '../constants';
-import { getBinColor } from '../utils/calculations';
+import { Bin } from './Bin';
 import * as THREE from 'three';
-
-function createTextTexture(text: string, fontSize: number = 32, color: string = '#ffffff', bgColor: string = 'transparent'): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d')!;
-  canvas.width = 512;
-  canvas.height = 512;
-  
-  if (bgColor !== 'transparent') {
-    context.fillStyle = bgColor;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  }
-  
-  context.font = `bold ${fontSize}px Arial`;
-  context.fillStyle = color;
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(text, canvas.width / 2, canvas.height / 2);
-  
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  return texture;
-}
-
-function createQuantityTexture(quantity: number, uom: string, fontSize: number = 24): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d')!;
-  canvas.width = 256;
-  canvas.height = 128;
-  
-  // Arka plan
-  context.fillStyle = 'rgba(60, 157, 255, 0.85)';
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  
-  // Border
-  context.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-  context.lineWidth = 2;
-  context.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-  
-  // Text
-  context.font = `bold ${fontSize}px Arial`;
-  context.fillStyle = '#ffffff';
-  context.textAlign = 'right';
-  context.textBaseline = 'bottom';
-  const text = `${quantity} ${uom}`;
-  context.fillText(text, canvas.width - 8, canvas.height - 8);
-  
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  return texture;
-}
 
 interface ShelfProps {
   shelf: DerivedShelf;
@@ -80,7 +30,6 @@ interface ShelfProps {
 export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBinClick, clickedBin }: ShelfProps) {
   const { bayCount, levelCount, position } = shelf;
   const binOutlineRefs = useRef<Map<string, THREE.Mesh>>(new Map());
-  const textureCache = useRef<Map<string, THREE.CanvasTexture>>(new Map());
 
   // Raf boyutları - padding dahil
   const contentWidth = useMemo(() => bayCount * SLOT_WIDTH + (bayCount - 1) * SLOT_GAP, [bayCount]);
@@ -262,117 +211,19 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
         </>
       )}
 
-      {bins.map((bin) => {
-        const isClicked = clickedBin?.id === bin.id;
-        
-        let nameTexture: THREE.CanvasTexture | null = null;
-        if (selected && bin.materialDescription) {
-          const cacheKey = `name-${bin.materialDescription}`;
-          if (!textureCache.current.has(cacheKey)) {
-            textureCache.current.set(cacheKey, createTextTexture(bin.materialDescription, 28, '#ffffff', 'rgba(0, 0, 0, 0.7)'));
-          }
-          nameTexture = textureCache.current.get(cacheKey)!;
-        }
-        
-        let quantityTexture: THREE.CanvasTexture | null = null;
-        if (selected && bin.quantity > 0) {
-          const cacheKey = `qty-${bin.quantity}-${bin.uom}`;
-          if (!textureCache.current.has(cacheKey)) {
-            textureCache.current.set(cacheKey, createQuantityTexture(bin.quantity, bin.uom, 20));
-          }
-          quantityTexture = textureCache.current.get(cacheKey)!;
-        }
-        
-        return (
-          <group key={bin.id} position={[bin.x, bin.y, 0]}>
-            {/* Ana bin mesh */}
-            <mesh
-              onPointerOver={(e) => {
-                e.stopPropagation();
-                onBinHover(bin);
-                if (selected) {
-                  document.body.style.cursor = 'pointer';
-                }
-              }}
-              onPointerOut={() => {
-                onBinHover(null);
-                document.body.style.cursor = 'default';
-              }}
-              onClick={(e) => {
-                if (selected) {
-                  e.stopPropagation();
-                  onBinClick(bin);
-                }
-              }}
-            >
-              <boxGeometry args={[SLOT_WIDTH - 0.15, SLOT_HEIGHT - 0.12, SHELF_DEPTH - 0.4]} />
-              <meshStandardMaterial 
-                color={getBinColor(bin)} 
-                metalness={0.3} 
-                roughness={0.7}
-                emissive={getBinColor(bin)}
-                emissiveIntensity={0.05}
-              />
-            </mesh>
-            
-            {/* Bin üzerine isim - yüzeyde */}
-            {selected && nameTexture && (
-              <mesh position={[0, SLOT_HEIGHT / 2 - 0.06, (SHELF_DEPTH - 0.4) / 2 + 0.001]}>
-                <planeGeometry args={[SLOT_WIDTH - 0.2, 0.08]} />
-                <meshBasicMaterial map={nameTexture} transparent />
-              </mesh>
-            )}
-            
-            {/* Sağ alt köşeye miktar - yüzeyde */}
-            {selected && quantityTexture && (
-              <mesh position={[SLOT_WIDTH / 2 - 0.12, -SLOT_HEIGHT / 2 + 0.06, (SHELF_DEPTH - 0.4) / 2 + 0.001]}>
-                <planeGeometry args={[0.12, 0.06]} />
-                <meshBasicMaterial map={quantityTexture} transparent />
-              </mesh>
-            )}
-            
-            {/* Seçili bin için parlayan outline */}
-            {isClicked && (
-              <>
-                <mesh
-                  ref={(mesh) => {
-                    if (mesh) binOutlineRefs.current.set(bin.id, mesh);
-                  }}
-                >
-                  <boxGeometry args={[SLOT_WIDTH - 0.02, SLOT_HEIGHT - 0.02, SHELF_DEPTH - 0.2]} />
-                  <meshBasicMaterial
-                    color="#ffd700"
-                    transparent
-                    opacity={0.5}
-                    side={THREE.BackSide}
-                    depthWrite={false}
-                  />
-                </mesh>
-                
-                {/* Ekstra parlak çerçeve */}
-                <mesh>
-                  <boxGeometry args={[SLOT_WIDTH + 0.05, SLOT_HEIGHT + 0.05, SHELF_DEPTH - 0.15]} />
-                  <meshBasicMaterial
-                    color="#ffec8b"
-                    transparent
-                    opacity={0.3}
-                    side={THREE.BackSide}
-                    depthWrite={false}
-                  />
-                </mesh>
-                
-                {/* Parlayan noktalar */}
-                <pointLight
-                  position={[0, 0, SHELF_DEPTH / 2]}
-                  color="#ffd700"
-                  intensity={1.2}
-                  distance={1.5}
-                />
-              </>
-            )}
-          </group>
-        );
-      })}
+      {bins.map((bin) => (
+        <Bin
+          key={bin.id}
+          bin={bin}
+          selected={selected}
+          isClicked={clickedBin?.id === bin.id}
+          onBinHover={onBinHover}
+          onBinClick={onBinClick}
+          binOutlineRef={(mesh) => {
+            if (mesh) binOutlineRefs.current.set(bin.id, mesh);
+          }}
+        />
+      ))}
     </group>
   );
 }
