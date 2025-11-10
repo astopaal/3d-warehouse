@@ -123,7 +123,6 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
           center 
           distanceFactor={8} 
           style={{ pointerEvents: 'none' }}
-          className="shelf-label-wrapper"
         >
           <div
             style={{

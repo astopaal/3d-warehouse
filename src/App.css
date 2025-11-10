@@ -4,12 +4,6 @@
   box-sizing: border-box;
 }
 
-/* Html component'lerini panelin arkasında tut */
-.shelf-label-wrapper,
-.zone-label-wrapper,
-.aisle-label-wrapper {
-  z-index: 1 !important;
-}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;

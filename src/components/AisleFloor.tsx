@@ -38,7 +38,6 @@ export function AisleFloor({ aisle, selected, onSelect }: AisleFloorProps) {
           center 
           distanceFactor={10} 
           style={{ pointerEvents: 'none' }}
-          className="aisle-label-wrapper"
         >
           <div
             style={{

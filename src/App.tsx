@@ -290,7 +290,7 @@ function AppContent() {
             shelves={shelves}
             selectedShelfId={selectedShelfId}
             selectedAisleId={selectedAisleId}
-            showLabels={!showWelcome}
+            showLabels={!showWelcome && !clickedBin}
             onSelectShelf={handleSelectShelf}
             onSelectAisle={handleSelectAisle}
             onBinHover={setHoveredBin}

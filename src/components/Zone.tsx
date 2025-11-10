@@ -31,7 +31,6 @@ export function Zone({ zone, showLabels }: ZoneProps) {
           center 
           distanceFactor={12} 
           style={{ pointerEvents: 'none' }}
-          className="zone-label-wrapper"
         >
           <div
             style={{
