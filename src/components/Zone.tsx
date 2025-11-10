@@ -30,7 +30,7 @@ export function Zone({ zone, showLabels }: ZoneProps) {
           position={[0, 0.1, 0]} 
           center 
           distanceFactor={12} 
-          style={{ pointerEvents: 'none', zIndex: 10 }}
+          style={{ pointerEvents: 'none' }}
           className="zone-label-wrapper"
         >
           <div

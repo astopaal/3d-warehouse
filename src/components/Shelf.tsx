@@ -122,7 +122,7 @@ export function Shelf({ shelf, selected, showLabels, onSelect, onBinHover, onBin
           position={[0, shelfHeight + 0.6, 0]} 
           center 
           distanceFactor={8} 
-          style={{ pointerEvents: 'none', zIndex: 10 }}
+          style={{ pointerEvents: 'none' }}
           className="shelf-label-wrapper"
         >
           <div
