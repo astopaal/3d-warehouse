@@ -4,7 +4,7 @@ import { Shelf } from './Shelf';
 import { Zone } from './Zone';
 import { AisleFloor } from './AisleFloor';
 
-interface WarehouseSceneProps {
+export interface WarehouseSceneProps {
   warehouse: SapWarehouse;
   shelves: DerivedShelf[];
   selectedShelfId: string | null;

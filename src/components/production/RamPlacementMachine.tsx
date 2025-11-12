@@ -32,7 +32,7 @@ export const RamPlacementMachine: React.FC<RamPlacementMachineProps> = ({
     }
   }, [isOperating, animationState]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (!isOperating || !headRef1.current || !headRef2.current) return;
 
     const speed = 0.5;

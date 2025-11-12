@@ -13,11 +13,11 @@ export function Dashboard({ warehouse, autoRotate, onToggleAutoRotate }: Dashboa
   const { t, language, setLanguage } = useLanguage();
 
   const stats = useMemo(() => {
-    const totalQuantity = warehouse.shelves.reduce((sum, shelf) => sum + shelf.bins.reduce((s, bin) => s + bin.quantity, 0), 0);
-    const totalCapacity = warehouse.shelves.reduce((sum, shelf) => sum + shelf.bins.reduce((s, bin) => s + bin.capacity, 0), 0);
+    const totalQuantity = warehouse?.shelves?.reduce((sum, shelf) => sum + shelf.bins.reduce((s, bin) => s + bin.quantity, 0), 0);
+    const totalCapacity = warehouse?.shelves?.reduce((sum, shelf) => sum + shelf.bins.reduce((s, bin) => s + bin.capacity, 0), 0);
     const occupancy = totalCapacity === 0 ? 0 : totalQuantity / totalCapacity;
-    const readyBins = warehouse.shelves.reduce((sum, shelf) => sum + shelf.bins.filter((b) => b.status === 'AVAILABLE').length, 0);
-    const avgTemp = warehouse.shelves.reduce((sum, shelf) => sum + shelf.sensors.temperature, 0) / warehouse.shelves.length;
+    const readyBins = warehouse?.shelves?.reduce((sum, shelf) => sum + shelf.bins.filter((b) => b.status === 'AVAILABLE').length, 0);
+    const avgTemp = warehouse?.shelves?.reduce((sum, shelf) => sum + shelf.sensors.temperature, 0) / warehouse?.shelves?.length;
 
     return { totalQuantity, totalCapacity, occupancy, readyBins, avgTemp };
   }, [warehouse]);
