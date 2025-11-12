@@ -19,7 +19,6 @@ export const CpuPlacementMachine: React.FC<CpuPlacementMachineProps> = ({
   
   const [animationState, setAnimationState] = useState<'idle' | 'pickup' | 'move' | 'place' | 'return'>('idle');
   const [progress, setProgress] = useState(0);
-  const [cycleCount, setCycleCount] = useState(0);
 
   useEffect(() => {
     if (isOperating && animationState === 'idle') {
@@ -31,7 +30,7 @@ export const CpuPlacementMachine: React.FC<CpuPlacementMachineProps> = ({
     }
   }, [isOperating, animationState]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (!isOperating || !headRef.current || !nozzleRef.current) return;
 
     const speed = 0.5;
@@ -77,7 +76,6 @@ export const CpuPlacementMachine: React.FC<CpuPlacementMachineProps> = ({
         if (progress > 1.5) {
           setAnimationState('return');
           setProgress(0);
-          setCycleCount((prev) => prev + 1);
           if (onCycleComplete) onCycleComplete();
         }
         break;

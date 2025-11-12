@@ -16,7 +16,7 @@ export const ConveyorBelt: React.FC<ConveyorBeltProps> = ({
   const beltRef = useRef<THREE.Mesh>(null);
   const rollerRefs = useRef<THREE.Mesh[]>([]);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (!isRunning) return;
 
     // Animate belt texture
